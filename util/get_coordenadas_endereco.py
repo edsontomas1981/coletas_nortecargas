@@ -1,43 +1,69 @@
-from geopy.geocoders import Nominatim
-import json
-import geopy.exc
+import requests
 
-def coordenadas_por_endereco(rua,cidade,estado):
-    endereco = f"{rua}-{cidade}-{estado}"
-    print(endereco)
+  # Substitua pela sua chave de API do OpenCage
 
-    geolocator = Nominatim(user_agent="roteirizacao")
-    location = geolocator.geocode(endereco)
-    if location:
-        return location.latitude, location.longitude
-    return None, None
 
-# coletas = [
-#     {"cep": "rua nova veneza - cumbica - guarulhos-sp", "numero": "1", "outros_dados": "Dados 1"},
-#     {"cep": "rua branquinha - guarulhos-sp", "numero": "2", "outros_dados": "Dados 2"},
-#     {"cep": "rua sume cumbica guarulhos-sp", "numero": "3", "outros_dados": "Dados 2"},
-#     {"cep": "av santos dumont cumbica guarulhos-sp", "numero": "4", "outros_dados": "Dados 2"},
-# ]
+def coordenadas_por_endereco(endereco, cidade, estado):
+    chave_api = '86cad90df84c46639442c280fb21d491'
+    base_url = 'https://api.opencagedata.com/geocode/v1/json'
+    params = {
+        'q': f'{endereco}, {cidade}, {estado}',
+        'key': chave_api,
+        'countrycode': 'BR'  # Código do país (BR para Brasil)
+    }
 
-# lista_coletas = []
+    try:
+        print(endereco)
+        response = requests.get(base_url, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            if 'results' in data and len(data['results']) > 0:
+                result = data['results'][0]
+                latitude = result['geometry']['lat']
+                longitude = result['geometry']['lng']
+                return latitude, longitude
+            else:
+                print("Nenhum resultado encontrado.")
+        else:
+            print(f"Erro na requisição: {response.status_code}")
+    except Exception as e:
+        print(f"Erro: {str(e)}")
 
-# for coleta in coletas:
+# # Exemplo de uso
+# endereco = 'Rua Vasco da Gama'
+# cidade = 'São Paulo'
+# estado = 'SP'
+
+# coordenadas = obter_coordenadas(endereco, cidade, estado, chave_api)
+# if coordenadas:
+#     latitude, longitude = coordenadas
+#     print(f"Latitude: {latitude}")
+#     print(f"Longitude: {longitude}")
+
+
+
+# from geopy.geocoders import Nominatim
+# import geopy.exc
+# import json
+
+# def coordenadas_por_endereco(rua,cidade,estado):
+#     endereco = f"{rua}, {cidade}, {estado}"
+#     print(endereco)
+
+#     geolocator = Nominatim(user_agent="roteirizacao")
 #     try:
-#         latitude, longitude = coordenadas_por_endereco(coleta["cep"])
-#         if latitude and longitude:
+#         location = geolocator.geocode(endereco)
+#         city = location.raw.get('address', {}).get('city')
 
-#             lista_coletas.append({
-#                 "lat": latitude,
-#                 "lng": longitude,
-#                 "numero_coleta": coleta["numero"],
-#                 "outros_dados": coleta["outros_dados"]
-#             })
+#         if location:
+#             return location.latitude, location.longitude
+#         return None, None
 #     except geopy.exc.GeocoderTimedOut:
-#         print(f"Timeout para o CEP: {coleta['cep']}")
-
-# # Converter o dicionário em uma string JSON
-# data = json.dumps(lista_coletas)
-
-# # Salvar os dados no arquivo JavaScript
-# with open("coletas.js", "w") as js_file:
-#     js_file.write(f"var coletasData = {data};")
+#         print("O tempo de resposta do serviço de geocodificação foi excedido.")
+#         return None, None
+#     except geopy.exc.GeocoderUnavailable:
+#         print("O serviço de geocodificação não está disponível no momento.")
+#         return None, None
+#     except Exception as e:
+#         print(f"Erro desconhecido: {str(e)}")
+#         return None, None
