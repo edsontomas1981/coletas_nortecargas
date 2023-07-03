@@ -18,8 +18,8 @@ def extrair_dados_coleta(linha):
     palavras = linha.split()
     return palavras[3],palavras[5]
 
-def ler_linha_pdf():
-    nome_arquivo = 'controller/coletas.pdf'
+def ler_linha_pdf(endereco_arquivo):
+    nome_arquivo = endereco_arquivo
     numero_linha = 7
 
     with open(nome_arquivo, 'rb') as arquivo_pdf:

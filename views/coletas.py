@@ -4,7 +4,7 @@ import sys
 sys.path.append('../util')
 from util import coordenadas_por_endereco, lat_long
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder='templates')
 CORS(app)
 
 @app.route('/api/dados', methods=['POST'])
