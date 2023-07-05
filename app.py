@@ -15,11 +15,7 @@ def index():
         jsonResposta = []
         for coleta in coletas:
             endereco=lat_long(coleta['cep'])
-            # {'altitude': 760.0, 'cep': '03003050', 
-            # 'latitude': '-23.6695000204', 'longitude': '-46.5034630582', 
-            # 'logradouro': 'Rua Vasco da Gama', 'bairro': 'Brás', 
-            # 'cidade': {'ddd': 11, 'ibge': '3550308', 'nome': 'São Paulo'}, 
-            # 'estado': {'sigla': 'SP'}}
+
             rua=endereco['logradouro']
             cidade=endereco['cidade']['nome']
             estado =endereco['estado']['sigla']    
@@ -31,14 +27,6 @@ def index():
                                  'volume':coleta['volumes'],
                                  'peso':coleta['peso'],
                                  })
-
-
-            # //     var latitude = coleta.latitude;
-            # //     var longitude = coleta.longitude;
-            # //     var numeroColeta = coleta.coleta;
-            # //     var volume = coleta.volume;
-            # //     var peso = coleta.peso;
-
         return jsonify(jsonResposta)
     else:
         # Renderizar o formulário
