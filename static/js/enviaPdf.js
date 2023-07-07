@@ -1,4 +1,5 @@
 let enviaPdf = document.getElementById('enviaPdf');
+
 enviaPdf.addEventListener('click', (e) => {
     e.preventDefault();
     let formulario = document.getElementById('formulario');
@@ -14,16 +15,18 @@ enviaPdf.addEventListener('click', (e) => {
 
     fetch('/', { method: 'POST', body: formData })
         .then(response => response.json())
-        .then(data => {
-            // Remover elemento de loader
-            document.body.removeChild(loader);
+            .then(data => {
+                const locations = data;
+                // Remover elemento de loader
+                document.body.removeChild(loader);
 
-            // Habilitar botão de envio
-            enviaPdf.disabled = false;
+                // Habilitar botão de envio
+                enviaPdf.disabled = false;
 
-            // Use os dados do JSON
-            console.log(data);
-        })
+                // Use os dados do JSON
+                geraMapa(locations)
+            })
+            
         .catch(error => {
             // Remover elemento de loader em caso de erro
             document.body.removeChild(loader);

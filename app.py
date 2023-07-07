@@ -16,17 +16,24 @@ def index():
         for coleta in coletas:
             endereco=lat_long(coleta['cep'])
 
+    #     name: 'Localização 2',
+    #     lat: -23.550520,
+    #     lng: -46.633308,
+    #     info: 'Informações sobre a Localização 2'
+    
+
             rua=endereco['logradouro']
             cidade=endereco['cidade']['nome']
             estado =endereco['estado']['sigla']    
             coordenadas=coordenadas_por_endereco(rua,cidade,estado)
-
-            jsonResposta.append({'latitude':coordenadas[0],
-                                 'longitude':coordenadas[0],
+            print(coordenadas)
+            jsonResposta.append({'lat':coordenadas[0],
+                                 'lng':coordenadas[1],
                                  'coleta':coleta['coleta'],
                                  'volume':coleta['volumes'],
                                  'peso':coleta['peso'],
                                  })
+            
         return jsonify(jsonResposta)
     else:
         # Renderizar o formulário

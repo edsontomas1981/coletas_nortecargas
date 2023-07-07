@@ -1,18 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Mapa com Marcadores</title>
-  <style>
-
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
-
-  <script>
+const geraMapa = (locations)=>{
     var map = L.map('map').setView([-23.550520, -46.633308], 12);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -23,25 +9,26 @@
 
     // Ícones personalizados
     var redIcon = L.icon({
-      iconUrl: "{{ url_for('static', filename='img/pin-vermelho.png') }}",
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34]
-    });
-
-    var blueIcon = L.icon({
-      iconUrl:"{{ url_for('static', filename='img/blue-icon.png') }}",
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34]
-    });
+        iconUrl: 'static/img/pin-vermelho.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34]
+      });
+  
+      var blueIcon = L.icon({
+        iconUrl:"{{ url_for('static', filename='img/blue-icon.png') }}",
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34]
+      });
+  
 
     // Adiciona marcadores ao mapa
     locations.forEach(function(location) {
       var marker = L.marker([location.lat, location.lng], { icon: redIcon }).addTo(map);
 
       // Informações exibidas ao passar o mouse sobre o marcador
-      marker.bindPopup(location.info);
+      marker.bindPopup(location.coleta);
 
       // Verifica se há sobreposição com outro marcador
       var overlappingMarker = markers.find(function(existingMarker) {
@@ -50,7 +37,7 @@
 
       if (overlappingMarker) {
         // Se houver sobreposição, adicione um aviso
-        marker.bindTooltip('Sobreposição de localização').openTooltip();
+        marker.bindTooltip('Existem mais de uma coleta nessa localidade').openTooltip();
       }
 
       // Armazena o marcador no array
@@ -70,7 +57,7 @@
           {
             label: 'Detalhes',
             action: function() {
-              alert(location.info);
+              alert(`Coleta nº ${location.coleta} | Volumes ${location.volumes} | Peso ${location.peso}`);
             }
           }
         ];
@@ -90,8 +77,14 @@
         });
       });
     });
+}
 
-
-  </script>
-</body>
-</html>
+// Função auxiliar para gerar o HTML do menu de opções
+function generateMenuHtml(options) {
+    var html = '<ul>';
+    options.forEach(function(option, index) {
+        html += '<li><a id="menu-option-' + index + '" href="#">' + option.label + '</a></li>';
+    });
+    html += '</ul>';
+    return html;
+    }
