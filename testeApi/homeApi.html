@@ -3,23 +3,24 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <link rel="stylesheet" href="css/estilo.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
   </head>
   <body>
     <header></header>
     <main>
-      <form enctype="multipart/form-data" id="formulario">
-        <div class="row">
-          <div class="col-sm-6">
-            <label for="arquivo_pdf">Arquivo PDF:</label>
-            <input type="file" id="fileInput" name="arquivo_pdf" accept=".pdf" required><br><br>
-          </div>
-          <div class="col-sm-6">
-            <input type="submit" value="Enviar" id="enviaPdf">
-          </div>
-        </div>
-      </form>
+      <div class="display">
+        <input type="file" class="item" id="fileInput" name="arquivo_pdf" accept=".pdf" required="">
+        <input type="submit" class="item" value="Enviar" id="enviaPdf">
+      </div>
     </main>
+    <container>
+      <div id="map"></div>
+    </container>
     <footer></footer>
     <script src="js/teste.js"></script>
+    <script src="js/criaMapa.js"></script>
+    <script src="js/enviaPdf.js"></script>
   </body>
 </html>

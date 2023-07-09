@@ -1,4 +1,3 @@
-alert('api')
 class APIConnection {
     constructor(apiUrl) {
       this.apiUrl = apiUrl;
@@ -65,40 +64,38 @@ class APIConnection {
       }
   }
 
-  let form = document.getElementById('formulario')
-
-  form.addEventListener('submit',(e)=>{
-      // Crie uma instância da classe APIConnection
-    const api = new APIConnection('http://localhost:5000/api/dados');
-
-    // Enviar dados para a API
-    const dadosEnviados = { chave: 'valor' };
-    api.enviarDados(dadosEnviados)
-    .then(resposta => console.log(resposta))
-    .catch(error => console.error(error));
-
-    // Receber dados da API
-    api.receberDados()
-    .then(dadosRecebidos => console.log(dadosRecebidos))
-    .catch(error => console.error(error));
-    e.preventDefault();
-  })
 
 
-  const fileInput = document.getElementById('fileInput');
+  const criarMapa = async(result)=>{
 
-  fileInput.addEventListener('change', function(event) {
-    // Crie uma instância da classe APIConnection
-    const api = new APIConnection('http://localhost:5000/api/upload');
+    // Cria o mapa
+    var map = L.map('map').setView([-23.4743594, -46.4741434], 12);
 
-        // Selecione o arquivo do input de arquivo (exemplo: <input type="file" id="fileInput">)
-        const fileInput = document.getElementById('fileInput');
-        const arquivo = fileInput.files[0];
+    // Adicionar o tile layer (mapa de fundo)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+      maxZoom: 20,
+    }).addTo(map);
 
-        // Enviar o arquivo para a API
-        api.enviarArquivo(arquivo)
-        .then(resposta => console.log(resposta))
-        .catch(error => console.error(error));
+    let coletasData = result
 
+    // Adicionar marcadores para cada coleta
+    coletasData.forEach(coleta => {
+      if (coleta.lat && coleta.lng) {
+        var latitude = coleta.lat;
+        var longitude = coleta.lng;
+        var numeroColeta = coleta.coleta;
+        var volume = coleta.volume;
+        var peso = coleta.peso;
+        var marker = L.marker([latitude, longitude])
+          .bindPopup(`Numero da Coleta: ${numeroColeta}<br>volumes: ${volume} Peso:${peso}`)
+          .addTo(map);
+
+        // Adicionar listener para o evento de clique
+        marker.on('click', function () {
+          console.log(`Marcador ${numeroColeta} clicado`);
+          // Aqui você pode fazer o que quiser com o marcador clicado, por exemplo, exibir informações adicionais ou redirecionar para outra página
+        });
+      }
     });
-  
+  }
