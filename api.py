@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from controller import ler_linha_pdf
-from util import lat_long,coordenadas_por_endereco
+from util import lat_long,coordenadas_por_endereco,geocode
 import os
 
 app = Flask(__name__)
@@ -62,7 +62,8 @@ def upload_arquivo():
         rua = endereco['logradouro']
         cidade = endereco['cidade']['nome']
         estado = endereco['estado']['sigla']
-        coordenadas = coordenadas_por_endereco(rua, cidade, estado)
+        endereco_busca_coords = f"{rua} , {cidade} , {estado}"
+        coordenadas = geocode(endereco_busca_coords)
         if coordenadas is not None:
             print(coordenadas)
             resposta.append({
