@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="pt-br">
   <head>
     <meta charset="utf-8">
     <title></title>
@@ -16,14 +16,14 @@
   <body>
     <header>
       <div class="row">
-        <div class="col-sm-6">
+        <div class="col-sm-4">
           <div class="input-group mb-1 mt-3 mr-3 ml-3">
             <input type="file" class="form-control" class="item" id="fileInput" name="arquivo_pdf" accept=".pdf">
             <input type="submit" class="btn btn-primary" value="Enviar" id="enviaPdf">
           </div>
         </div>
-        <div class="col-sm-6">
-          <div class="input-group mb-1 mt-3 mr-3 ml-3">
+        <div class="col-sm-2">
+          <div class="input-group mb-1 mt-3 mr-1 ml-1">
             <select class="form-select" aria-label="Selecione o tipo de Veículo">
               <option selected>Selecione o Veículo</option>
               <option value="1">Automóvel</option>
@@ -35,22 +35,42 @@
               <option value="6">Carreta</option>
             </select>
           </div>
-        </div>        
+        </div>  
+        <div class="col-sm-2 mb-1 mt-3 mr-1 ml-1">
+          <select class="form-select" aria-label="Selecione o tipo de Veículo">
+            <option selected>Selecione o motorista</option>
+            <option value="1">Fulano de tal</option>
+            <option value="2">Beltrano de tal</option>
+            <option value="3">Cicrano de Oliveira</option>
+            <option value="4">Fulano de Souza</option>
+            <option value="4">Zé das Couves</option>
+
+          </select>        
+        </div>  
       </div>
     </header>
     <main>
-      <div id="map">
-        <div class="row">
-          <div class="col-12 align-items-center justify-content-center" id="loader" style="display: none;">
-            <img src="img/loading.gif">
-            <h3>Carregando dados aguarde !</h3>
-          </div>
+      <div class="row">
+        <div class="col-12 align-items-center justify-content-center" id="loader" style="display: none;">
+          <img src="img/loading.gif">
+          <h3>Carregando dados aguarde !</h3>
         </div>
+      </div>      
+      <div class="row">
+        <div class="col-sm-9 align-items-center justify-content-center">
+          <div id="map" ></div>
+        </div>
+        <div class="col-sm-3 align-items-center justify-content-center">
+          <div id="relatorio" >
+
+          </div>
+        </div>        
       </div>
     </main>
     <footer></footer>
     <script src="js/criaMapa.js"></script>
     <script src="js/enviaPdf.js"></script>
     <script src="js/conexao.js"></script>
-  </body>
+    <script src="js/romaneio.js"></script>
+</body>
 </html>

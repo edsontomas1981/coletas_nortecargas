@@ -34,4 +34,12 @@ const criarMapa=(coletasData)=> {
         });
       }
     });
+
+    geraRomaneio();
+  }
+
+  const limpaMapa = ()=>{
+    let mapa = document.getElementById('map')
+    let html = ''
+    mapa.innerHTML = html
   }

@@ -9,6 +9,9 @@ enviaPdf.addEventListener('click',(e)=>{
   // Crie uma instância da classe APIConnection
   const api = new APIConnection('http://localhost:5000/api/upload');
 
+  limpaMapa();
+  limpaRomaneio();
+
   // Enviar o arquivo para a API
   api.enviarArquivo(arquivo)
   .then(resposta => {
