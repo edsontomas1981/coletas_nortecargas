@@ -10,6 +10,10 @@ def extrair_digitos(linha):
             return digitos
     return ""
 
+def extrair_remetente(linha):
+    palavras = linha.split(':')
+    return palavras[1]
+
 def extrair_coleta(linha):
     palavras = linha.split()
     return palavras[10]
@@ -38,8 +42,9 @@ def ler_linha_pdf(endereco_arquivo):
                 linha = extrair_digitos(linhas_pagina[numero_linha - 1])
                 coleta = extrair_coleta(linhas_pagina[0])
                 volume,peso = extrair_dados_coleta(linhas_pagina[13])
-
+                remetente = extrair_remetente(linhas_pagina[4])
                 if linha:
                     linhas.append({'cep':linha,'coleta':coleta,'volumes':volume,
-                                   'peso':peso})
+                                   'peso':peso,'remetente':remetente})
+            print(linhas)
         return linhas
