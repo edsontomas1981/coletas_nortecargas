@@ -76,7 +76,7 @@ const adicionaColeta=(numeroRomaneio,coleta)=> {
     romaneioColeta.veiculo = 'Novo Veículo';
     romaneioColeta.motorista = 'Novo Motorista';
     romaneioColeta.coletas.push(coleta);
-
+ 
     // Armazene o romaneio atualizado na sessão novamente
     sessionStorage.setItem(numeroRomaneio, JSON.stringify(romaneioColeta));
     console.log(romaneioColeta)
