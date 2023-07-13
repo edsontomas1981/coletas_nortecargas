@@ -39,3 +39,57 @@ const limpaRomaneio = ()=>{
     let html = ""
     romaneio.innerHTML = html
 }
+
+document.getElementById('geraRomaneio').addEventListener('click',()=>{
+    let numero = criaNumRomaneio();
+    let veiculo = getVeiculoSelecionado()
+    let motorista = getMotoristaSelecionado()
+    let coletas  = []
+    let romaneioColeta = { 'numero': numero, 'veiculo': veiculo,'motorista':motorista,'coletas':coletas };
+    sessionStorage.setItem(numero, JSON.stringify(romaneioColeta));
+    let novaColeta = {
+        'numeroColeta': 'C001',
+        'endereco': 'Rua A, 123',
+        'destinatario': 'João Silva'
+      };
+    adicionaColeta('13713351',novaColeta)
+})
+
+const getMotoristaSelecionado = ()=>{
+    let selectMotorista = document.getElementById('motorista') 
+    let motorista = selectMotorista.options[selectMotorista.selectedIndex];
+    return motorista.text
+}
+
+const getVeiculoSelecionado = ()=>{
+    let selectVeiculo = document.getElementById('veiculo')
+    let veiculo = selectVeiculo.options[selectVeiculo.selectedIndex];
+    return veiculo.text
+}
+
+const adicionaColeta=(numeroRomaneio,coleta)=> {
+    // Recuperando o romaneio da sessão
+    var romaneioColetaString = sessionStorage.getItem(numeroRomaneio);
+    var romaneioColeta = JSON.parse(romaneioColetaString);
+
+    // Faça as alterações necessárias no objeto do romaneio
+    romaneioColeta.veiculo = 'Novo Veículo';
+    romaneioColeta.motorista = 'Novo Motorista';
+    romaneioColeta.coletas.push(coleta);
+
+    // Armazene o romaneio atualizado na sessão novamente
+    sessionStorage.setItem(numeroRomaneio, JSON.stringify(romaneioColeta));
+    console.log(romaneioColeta)
+  }
+
+const criaNumRomaneio = ()=>{
+    let dataAtual = new Date();
+// Obtendo os valores individuais da data
+    var dia = String(dataAtual.getDate()).padStart(2, '0'); // Retorna o dia do mês (01-31)
+    var mes = String(dataAtual.getMonth() + 1).padStart(2, '0'); // Retorna o mês (01-12)
+    var horas = String(dataAtual.getHours()).padStart(2, '0'); // Retorna as horas (00-23)
+    var minutos = String(dataAtual.getMinutes()).padStart(2, '0'); // Retorna os minutos (00-59)
+    var segundos = String(dataAtual.getSeconds()).padStart(2, '0'); // Retorna os segundos (00-59)
+    let numRomaneio = dia+mes+horas+minutos+segundos
+    return numRomaneio
+}
