@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', async ()=> {
     api.receberDados()
     .then(resposta => {
         criarMapa(resposta);
-        console.log(resposta)
-        })
+        let dados = "dados"
+        sessionStorage.setItem(dados, JSON.stringify(resposta));
+      })
     .catch(error => console.error(error));
 }

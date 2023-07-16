@@ -1,3 +1,6 @@
+// Fora do escopo da função criarMapa
+let marcadores = []; // Array para armazenar as referências aos marcadore
+
 const criarMapa = (coletasData) => {
   var mapOptions = {
     center: { lat: -23.550164466, lng: -46.633664132 },
@@ -16,6 +19,7 @@ const criarMapa = (coletasData) => {
       var numeroColeta = coleta.coleta;
       var volume = coleta.volume;
       var peso = coleta.peso;
+      
 
       var customIcon = {
         labelOrigin: new google.maps.Point(11, 50), // Define a posição do rótulo do ícone
@@ -38,25 +42,41 @@ const criarMapa = (coletasData) => {
         };
       }
 
+      // Dentro do loop onde os marcadores são criados
       var marker = new google.maps.Marker({
         position: { lat: latitude, lng: longitude },
         map: map,
-        icon: customIcon
+        icon: customIcon,
+        id:coleta.coleta
       });
 
+      marcadores.push(marker); // Armazena a referência do marcador no array
+
+      let dictColeta = {
+        'remetente': coleta.remetente,
+        'endereco': coleta.endereco,
+        'cidade': coleta.cidade + '-' + coleta.estado,
+        'coleta': numeroColeta,
+        'volumes': volume,
+        'peso': peso,
+        'lat': coleta.lat,
+        'lng': coleta.lng
+      };
+      
       var infoWindow = new google.maps.InfoWindow({
         content: `Remetente: ${coleta.remetente}<br>
                   Endereço: ${coleta.endereco}<br>
                   Cidade: ${coleta.cidade}-${coleta.estado}<br>
                   Numero da Coleta: ${numeroColeta}<br>
-                  volumes: ${volume} Peso:${peso}<br><br>
+                  Volumes: ${volume} Peso:${peso}<br><br>
+                  <button class="btn-primary" data-marker="${marker.id}" data-coleta='${JSON.stringify(dictColeta)}' onclick="adicionaColeta(this)">adicionar a rota</button>`
+                });
 
-                  <button class="btn-primary">adicionar a rota</button>`
-      });
+      // Armazene a referência ao marcador como uma propriedade do objeto infoWindow
+      infoWindow.marker = marker;
 
       marker.addListener('click', function () {
         infoWindow.open(map, marker);
-        console.log(`Marcador ${numeroColeta} clicado`);
       });
     }
   });
@@ -70,3 +90,5 @@ const limpaMapa = () => {
   let html = ''
   mapa.innerHTML = html
 }
+
+
