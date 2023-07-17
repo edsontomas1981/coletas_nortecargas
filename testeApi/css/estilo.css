@@ -20,6 +20,14 @@
     width: 100%;
   }
 
+td.truncate {
+  max-width: 30px; /* Comprimento máximo desejado */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+  
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }

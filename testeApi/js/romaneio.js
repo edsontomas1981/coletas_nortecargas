@@ -1,39 +1,30 @@
-const geraRomaneio = ()=>{
-    let romaneio = document.getElementById('relatorio')
-    let html = `            
-                <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
-                </tr>
-                <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                </tr>
-                <tr>
-                    <th scope="row">3</th>
-                    <td colspan="2">Larry the Bird</td>
-                    <td>@twitter</td>
-                </tr>
-                </tbody>
-            </table>
-    `
-    romaneio.innerHTML = html
-}
+const geraLinhaRomaneio = (coleta,remetente,cidade,volume,peso) => {
+    let tabela = document.getElementById('tabelaRomaneio');
+    let linha = tabela.insertRow();
+  
+    let cell1 = linha.insertCell();
+    let cell2 = linha.insertCell();
+    let cell3 = linha.insertCell();
+    let cell4 = linha.insertCell();
+    let cell5 = linha.insertCell();
+  
+    cell1.innerHTML = `
+      <i class="fa fa-trash" aria-hidden="true" onclick="removeRomaneio()"></i>
+      <span>${coleta}</span>
+    `;
+    cell2.innerHTML = remetente;
+    cell3.innerHTML = cidade;
+    cell4.innerHTML = volume;
+    cell5.innerHTML = peso;
+  
+    // Adicione a classe 'truncate' às células que você deseja truncar
+    cell2.classList.add('truncate');
+    cell3.classList.add('truncate');
+  };
 
+const removeRomaneio=()=>{
+    alert('remove')
+}
 const limpaRomaneio = ()=>{
     let romaneio = document.getElementById('relatorio')
     let html = ""
@@ -41,13 +32,13 @@ const limpaRomaneio = ()=>{
 }
 
 document.getElementById('geraRomaneio').addEventListener('click',()=>{
-    let numero = criaNumRomaneio();
-    let veiculo = getVeiculoSelecionado()
-    let motorista = getMotoristaSelecionado()
-    let coletas  = []
-    let romaneioColeta = {'numero':numero,'veiculo':veiculo,'motorista':motorista,'coletas':coletas};
-    preencheNumRomaneio(numero);
-    sessionStorage.setItem(numero, JSON.stringify(romaneioColeta));
+    // let numero = criaNumRomaneio();
+    // let veiculo = getVeiculoSelecionado()
+    // let motorista = getMotoristaSelecionado()
+    // let coletas  = []
+    // let romaneioColeta = {'numero':numero,'veiculo':veiculo,'motorista':motorista,'coletas':coletas};
+    // preencheNumRomaneio(numero);
+    // sessionStorage.setItem(numero, JSON.stringify(romaneioColeta));
 })
 
 const getMotoristaSelecionado = ()=>{
@@ -62,27 +53,24 @@ const getVeiculoSelecionado = ()=>{
     return veiculo.text
 }
 
-const adicionaColeta = (coleta) => {
-    let dadosColeta = JSON.parse(coleta.dataset.coleta);
+const adicionaColeta = (event) => {
+    let markerId = event.target.dataset.marker;
+    let remetente = event.target.dataset.remetente;
+    let cidade = event.target.dataset.cidade;
+    let volume = event.target.dataset.volume;
+    let peso = event.target.dataset.peso;
+    let coleta = event.target.dataset.coleta;
 
-    // Recuperando o romaneio da sessão
-    let numeroRomaneio = document.getElementById('numRomaneio').textContent;
-    var romaneioColetaString = sessionStorage.getItem(parseFloat(numeroRomaneio));
-    var romaneioColeta = JSON.parse(romaneioColetaString);
-    
+    let marker = marcadores.find(m => m.id == markerId); // Encontra o marcador pelo ID
   
-    // Faça as alterações necessárias no objeto do romaneio
-    romaneioColeta.veiculo = getVeiculoSelecionado();
-    romaneioColeta.motorista = getMotoristaSelecionado();
-    romaneioColeta.coletas.push(dadosColeta);
-  
-    // Armazene o romaneio atualizado na sessão novamente
-    sessionStorage.setItem(numeroRomaneio, JSON.stringify(romaneioColeta));
-  
- 
+    if (marker) {
+        geraLinhaRomaneio(coleta,remetente,cidade,volume,peso)
+        removerPinDoMapa(marker);
+      
+    } else {
+      console.log("Marcador não encontrado com o ID especificado:", markerId);
+    }
   };
-  
-  
 
 const criaNumRomaneio = ()=>{
     let dataAtual = new Date();
@@ -131,3 +119,7 @@ const removeItem =(numeroColeta)=>{
 
 
 }
+
+const removerPinDoMapa=(marker)=>{
+    marker.setMap(null);
+  }
