@@ -1,8 +1,7 @@
-var marcadores = []
-// Objeto para armazenar as coordenadas únicas e contadores
+var marcadores = [];
 var coordenadas = {};
-
-var circle = null;
+var circles = {}; // Usando um objeto para armazenar os círculos por mapa
+var map;
 
 const criarMapa = (coletasData) => {
   var mapOptions = {
@@ -10,12 +9,12 @@ const criarMapa = (coletasData) => {
     zoom: 10,
     mapTypeControl: false // Desabilita o controle de tipo de mapa
   };
-  var map = new google.maps.Map(document.getElementById('map'), mapOptions);  
+  map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
   coletasData.forEach(coleta => {
-    inseriColetasNoMapa(coleta,map)
+    inseriColetasNoMapa(coleta, map);
   });
-}
+};
 
 const limpaMapa = () => {
   let mapa = document.getElementById('map')
@@ -37,6 +36,10 @@ const geraIconVermelho=()=>{
                     url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' // URL do ícone do Google Maps com outra cor desejada
                   };
   return iconCustomizado
+}
+
+const menuDireito=()=>{
+
 }
 
 const criaMarcador = (latitude, longitude, map, pinLocal, coleta) => {
@@ -94,35 +97,36 @@ const inseriColetasNoMapa = (coleta,map)=>{
       let marker = criaMarcador(latitude,longitude,map,pinLocal,coleta.coleta)
       
       let infoWindow = geraInformacoesColeta(coleta,marker)
-
       // Armazene a referência ao marcador como uma propriedade do objeto infoWindow
       infoWindow.marker = marker;
-
       const optionInfoWindow = ()=>{
         infoWindow.open(map, marker);
       }
 
+      let infoMenuDireito = geraMenuAcoes(coleta, marker,map)
+      infoMenuDireito.marker = marker;
+      const optionInfoMenuDireito = ()=>{
+        infoMenuDireito.open(map, marker);
+      }
+
+
+
       marker.addListener('click', async ()=> {
-        createCircle(parseFloat(coleta.lat), parseFloat(coleta.lng), map);
+        optionInfoWindow()
       });
 
       // Adicionando o evento de clique direito ao marcador
       marker.addListener('rightclick', function(event) {
-        optionInfoWindow()
+        optionInfoMenuDireito()
+        // createCircle(parseFloat(coleta.lat), parseFloat(coleta.lng), map);
       });
   }
 }
 
+
 function createCircle(latitude, longitude, map) {
   var center = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
-
-  // Remove o círculo anterior, se existir
-  if (circle) {
-    circle.setMap(null);
-  }
-
-  // Cria um novo círculo com o centro no local do clique
-  circle = new google.maps.Circle({
+  var circle = new google.maps.Circle({
     strokeColor: '#FF0000',
     strokeOpacity: 0.8,
     strokeWeight: 2,
@@ -132,10 +136,31 @@ function createCircle(latitude, longitude, map) {
     radius: 2500 // Defina o raio desejado em metros
   });
 
-  // Adiciona o círculo ao mapa
+  if (circles[map]) {
+    circles[map].setMap(null);
+  }
+
   circle.setMap(map);
+  circles[map] = circle; // Armazena a instância do círculo para o mapa correspondente
 }
 
+const geraMenuAcoes = (coleta, marker, map) => {
+  let info = new google.maps.InfoWindow();
+  let content = `<ul class="list-group">
+                    <li class="list-group-item" onclick="geraPerimetro(${parseFloat(coleta.lat)},${parseFloat(coleta.lng)}, map)">gERA</li>
+                    <li class="list-group-item" onclick="removerPerimetro(map)">rEMOVE</li>
+                 </ul>`;
+  info.setContent(content);
+  return info;
+}
 
+const geraPerimetro = (latitude, longitude, map) => {
+  createCircle(latitude, longitude, map);
+}
 
-
+const removerPerimetro = (map) => {
+  if (circles[map]) {
+    circles[map].setMap(null);
+    delete circles[map];
+  }
+}
