@@ -53,7 +53,7 @@ const getVeiculoSelecionado = ()=>{
     return veiculo.text
 }
 
-const adicionaColeta = (event) => {
+const adicionarColeta = (event) => {
     let markerId = event.target.dataset.marker;
     let remetente = event.target.dataset.remetente;
     let cidade = event.target.dataset.cidade;
