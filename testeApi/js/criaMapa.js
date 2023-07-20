@@ -8,18 +8,19 @@ var infoMenuDireito = null; // Variável para armazenar o infoMenuDireito atual
 var coletas;
 var raio = 2.500;
 
-const criarMapa = (coletasData) => {
+const criarMapa = async (coletasData) => {
   coletas = coletasData;
   var mapOptions = {
     center: { lat: -23.550164466, lng: -46.633664132 },
     zoom: 10,
     mapTypeControl: false // Desabilita o controle de tipo de mapa
   };
-  map = new google.maps.Map(document.getElementById('map'), mapOptions);
+  map = await new google.maps.Map(document.getElementById('map'), mapOptions);
 
   coletasData.forEach(coleta => {
     inserirColetaNoMapa(coleta, map);
   });
+  adicionarMarcadorOrigem();
 };
 
 
@@ -44,7 +45,8 @@ const limparMapa = () => {
 const gerarIconeAzul = () => {
   let iconCustomizado = {
     labelOrigin: new google.maps.Point(11, 50), // Define a posição do rótulo do ícone
-    url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' // URL do ícone do Google Maps com a cor desejada
+    url: 'img/pinColeta2.png', // https://maps.google.com/mapfiles/ms/icons/red-dot.png URL do ícone do Google Maps com outra cor desejada
+    scaledSize: new google.maps.Size(17, 19)
   };
   return iconCustomizado;
 };
@@ -52,7 +54,17 @@ const gerarIconeAzul = () => {
 const gerarIconeVerde = () => {
   let iconCustomizado = {
     labelOrigin: new google.maps.Point(11, 50), // Define a posição do rótulo do ícone
-    url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' // URL do ícone do Google Maps com a cor desejada
+    url: 'img/pinColeta.png', // https://maps.google.com/mapfiles/ms/icons/red-dot.png URL do ícone do Google Maps com outra cor desejada
+    scaledSize: new google.maps.Size(15, 17)
+  };
+  return iconCustomizado;
+};
+
+const gerarIconeOrigem = () => {
+  let iconCustomizado = {
+    labelOrigin: new google.maps.Point(11, 50), // Define a posição do rótulo do ícone
+    url: 'img/pngTruck.png', // URL do ícone do Google Maps com a cor desejada
+    scaledSize: new google.maps.Size(40, 30) // Define o tamanho do ícone (metade do tamanho original)
   };
   return iconCustomizado;
 };
@@ -60,12 +72,14 @@ const gerarIconeVerde = () => {
 const gerarIconeVermelho = () => {
   let iconCustomizado = {
     labelOrigin: new google.maps.Point(11, 50), // Define a posição do rótulo do ícone
-    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' // URL do ícone do Google Maps com outra cor desejada
+    url: 'img/pinColeta.png', // https://maps.google.com/mapfiles/ms/icons/red-dot.png URL do ícone do Google Maps com outra cor desejada
+    scaledSize: new google.maps.Size(15, 17)
   };
   return iconCustomizado;
 };
 
 const criarMarcador = (latitude, longitude, map, pinLocal, coleta) => {
+  
   let coordenada = `${latitude},${longitude}`;
 
   if (coordenada in coordenadas) {
@@ -99,6 +113,30 @@ const criarMarcador = (latitude, longitude, map, pinLocal, coleta) => {
 
   return marcador;
 };
+
+const criarMarcadorOrigem = (latitude, longitude, map, pinLocal, coleta) => {
+  
+  let marcador = new google.maps.Marker({
+    position: { lat: latitude, lng: longitude },
+    map: map,
+    icon: pinLocal,
+    id: coleta
+  });
+
+  marcador.addListener('click', () => {
+    exibirInfoWindow(marcador);
+  });
+
+  // Adicionando o evento de clique direito ao marcador
+  marcador.addListener('rightclick', () => {
+    exibirInfoMenuDireito(marcador);
+  });
+
+  marcadores.push(marcador); // Adiciona o marcador ao array marcadores
+
+  return marcador;
+};
+
 
 const gerarInformacoesColeta = (coleta, marcador) => {
   let info = new google.maps.InfoWindow();
@@ -172,7 +210,7 @@ const gerarMenuAcoes = (coleta, marcador) => {
   let content = `<ul class="list-group">
                     <li class="list-group-item" onclick="gerarPerimetro(${parseFloat(coleta.lat)}, ${parseFloat(coleta.lng)}, map)">Gerar Perímetro</li>
                     <li class="list-group-item" onclick="gerarItinerarioAPartirDoPerimetro(${parseFloat(coleta.lat)}, ${parseFloat(coleta.lng)})">Gerar Itinerário a partir do Perímetro</li>
-                    <li class="list-group-item" onclick="gerarItinerarioAPartirDaqui(${marcador.id})">Gerar Itinerário a partir daqui</li>
+                    <li class="list-group-item" onclick="gerarIntinerarioAteAqui(${marcador.id})">Gerar Itinerário até aqui</li>
                     <li class="list-group-item" onclick="removerPerimetro(map)">Remover Perímetro</li>
                  </ul>`;
   return content;
@@ -193,14 +231,12 @@ const exibirInfoMenuDireito = (marcador) => {
   }
 };
 
-const gerarItinerarioAPartirDaqui = (marcadorId) => {
+const gerarIntinerarioAteAqui = (marcadorId) => {
   let latitudeOrigem = -23.473615932489814;
   let longitudeOrigem = -46.473314721518726;
 
   let marcadorOrigem = criarMarcador(latitudeOrigem, longitudeOrigem, map, gerarIconeVerde(), "Origem");
 
-  console.log(marcadorId)
-  
   if (!marcadorOrigem) return;
   let marcadorDestino = marcadores.find((m) => m.id === marcadorId); //Gera 
 
@@ -317,12 +353,16 @@ const gerarItinerarioAPartirDoPerimetro = (lat, lng) => {
 
 // Movendo a chamada da função adicionarMarcadorOrigem para depois da declaração dela
 const adicionarMarcadorOrigem = () => {
-  let latitudeOrigem = -23.46822084228808;
-  let longitudeOrigem = -46.473327049041835;
+  // , 
+  let latitudeOrigem = -23.473683815599315;
+  let longitudeOrigem = -46.47333115093511;
 
-  let marcadorOrigem = criarMarcador(latitudeOrigem, longitudeOrigem, map, gerarIconeVerde(), "Origem");
+  let marcadorOrigem = criarMarcadorOrigem(latitudeOrigem, longitudeOrigem, map, gerarIconeOrigem(), "Origem");
   // map.panTo(new google.maps.LatLng(latitudeOrigem, longitudeOrigem)); // Centraliza o mapa na localidade desejada
 };
 
-// Agora podemos chamar a função adicionarMarcadorOrigem após a declaração dela
-adicionarMarcadorOrigem();
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  adicionarMarcadorOrigem();
+});
+
