@@ -8,6 +8,13 @@ var infoMenuDireito = null; // Variável para armazenar o infoMenuDireito atual
 var coletas;
 var raio = 2.500;
 
+const getColetaInColetas=(coletaId)=>{
+  let index = coletas.findIndex((item) => item.coleta == coletaId);
+  let coleta =   coletas.splice(index, 1);
+  return coleta
+}
+
+
 const criarMapa = async (coletasData) => {
   coletas = coletasData;
   var mapOptions = {
@@ -114,26 +121,13 @@ const criarMarcador = (latitude, longitude, map, pinLocal, coleta) => {
   return marcador;
 };
 
-const criarMarcadorOrigem = (latitude, longitude, map, pinLocal, coleta) => {
-  
+const criarMarcadorOrigem = (latitude, longitude, map, pinLocal) => {
   let marcador = new google.maps.Marker({
     position: { lat: latitude, lng: longitude },
     map: map,
     icon: pinLocal,
-    id: coleta
+    id: "Matriz "
   });
-
-  marcador.addListener('click', () => {
-    exibirInfoWindow(marcador);
-  });
-
-  // Adicionando o evento de clique direito ao marcador
-  marcador.addListener('rightclick', () => {
-    exibirInfoMenuDireito(marcador);
-  });
-
-  marcadores.push(marcador); // Adiciona o marcador ao array marcadores
-
   return marcador;
 };
 
@@ -357,7 +351,7 @@ const adicionarMarcadorOrigem = () => {
   let latitudeOrigem = -23.473683815599315;
   let longitudeOrigem = -46.47333115093511;
 
-  let marcadorOrigem = criarMarcadorOrigem(latitudeOrigem, longitudeOrigem, map, gerarIconeOrigem(), "Origem");
+  let marcadorOrigem = criarMarcadorOrigem(latitudeOrigem, longitudeOrigem, map, gerarIconeOrigem());
   // map.panTo(new google.maps.LatLng(latitudeOrigem, longitudeOrigem)); // Centraliza o mapa na localidade desejada
 };
 

@@ -1,34 +1,39 @@
 const geraLinhaRomaneio = (coleta, remetente, cidade, volume, peso) => {
-    let tabela = document.getElementById('tabelaRomaneio');
-    let linha = tabela.insertRow();
-  
-    linha.setAttribute('data-coleta', coleta); // Adiciona o atributo data-coleta à linha
-  
-    let cell1 = linha.insertCell();
-    let cell2 = linha.insertCell();
-    let cell3 = linha.insertCell();
-    let cell4 = linha.insertCell();
-    let cell5 = linha.insertCell();
-  
-    // Escapa o valor da coleta para evitar problemas de segurança
-    const coletaEscaped = escapeHtml(coleta);
-  
-    cell1.innerHTML = `
-      <i class="fa fa-trash" aria-hidden="true" onclick="removeRomaneio('${coletaEscaped}')"></i>
-      <span>${coletaEscaped}</span>
-    `;
-  
-    // Escapa os valores restantes para evitar problemas de segurança
-    cell2.textContent = escapeHtml(remetente);
-    cell3.textContent = escapeHtml(cidade);
-    cell4.textContent = escapeHtml(volume);
-    cell5.textContent = escapeHtml(peso);
-  
-    // Adicione a classe 'truncate' às células que você deseja truncar
-    cell2.classList.add('truncate');
-    cell3.classList.add('truncate');
-  };
-  
+  const linha = document.createElement('tr');
+  linha.dataset.coleta = coleta; // Adiciona o atributo data-coleta à linha
+
+  const celula1 = document.createElement('td');
+  const celula2 = document.createElement('td');
+  const celula3 = document.createElement('td');
+  const celula4 = document.createElement('td');
+  const celula5 = document.createElement('td');
+
+  // Escapa o valor da coleta para evitar problemas de segurança
+  const coletaEscaped = escapeHtml(coleta);
+
+  celula1.innerHTML = `
+    <i class="fa fa-trash" aria-hidden="true" onclick="removeRomaneio('${coletaEscaped}')"></i>
+    <span>${coletaEscaped}</span>
+  `;
+
+  // Escapa os valores restantes para evitar problemas de segurança
+  celula2.textContent = escapeHtml(remetente);
+  celula3.textContent = escapeHtml(cidade);
+  celula4.textContent = escapeHtml(volume);
+  celula5.textContent = escapeHtml(peso);
+
+  // Adicione a classe 'truncate' às células que você deseja truncar
+  celula2.classList.add('truncate');
+  celula3.classList.add('truncate');
+
+  linha.appendChild(celula1);
+  linha.appendChild(celula2);
+  linha.appendChild(celula3);
+  linha.appendChild(celula4);
+  linha.appendChild(celula5);
+
+  document.getElementById('tabelaRomaneio').appendChild(linha);
+};
 
   const removeLinhaRomaneio = (coleta) => {
     let tabela = document.getElementById('tabelaRomaneio');
@@ -86,13 +91,14 @@ const adicionarColeta = (event) => {
     let cidade = event.target.dataset.cidade;
     let volume = event.target.dataset.volume;
     let peso = event.target.dataset.peso;
-    let coleta = event.target.dataset.coleta;
+    let coletaId = event.target.dataset.coleta;
   
     let marker = marcadores.find(m => m.id == markerId); // Encontra o marcador pelo ID
   
     if (marker) {
-      geraLinhaRomaneio(coleta, remetente, cidade, volume, peso);
+      geraLinhaRomaneio(coletaId, remetente, cidade, volume, peso);
       removerPinDoMapa(marker);
+      let coleta = getColetaInColetas(coletaId)
     } else {
       console.log("Marcador não encontrado com o ID especificado:", markerId);
     }
@@ -116,35 +122,6 @@ const preencheNumRomaneio = (numero)=>{
     numRomaneio.textContent = numero
 }
 
-
-const removeItem =(numeroColeta)=>{
-    var coletasData = sessionStorage.getItem("dados");
-
-    // Variável para armazenar o índice do registro a ser removido
-    var indiceRemovido = -1;
-
-    // Percorre o array de registros
-    for (var i = 0; i < coletasData.length; i++) {
-    if (coletasData[i].coleta === numeroColeta) {
-        // Encontrou o registro com o número da coleta
-        registroRemovido = coletasData[i];
-        indiceRemovido = i;
-        break;
-    }
-    }
-
-    if (indiceRemovido !== -1) {
-    // Remove o registro do array
-    coletasData.splice(indiceRemovido, 1);
-    console.log("Registro removido:", registroRemovido);
-    console.log("Array atualizado:", coletasData);
-    } else {
-    console.log("Registro não encontrado com o número da coleta especificado.");
-    }
-
-    sessionStorage.setItem(dados, JSON.stringify(coletasData));
-}
-
 const removerPinDoMapa = (marcador) => {
     if (marcador) {
       marcador.setMap(null); // Remove o marcador do mapa
@@ -153,21 +130,21 @@ const removerPinDoMapa = (marcador) => {
         marcadores.splice(index, 1); // Remove o marcador do array 'marcadores'
       }
     }
-  };
+};
 
-  const escapeHtml = (unsafe) => {
-    if (!unsafe.replace) return unsafe;
-    return unsafe.replace(/[&<"']/g, (m) => {
-      switch (m) {
-        case '&':
-          return '&amp;';
-        case '<':
-          return '&lt;';
-        case '"':
-          return '&quot;';
-        default:
-          return '&#039;';
-      }
-    });
-  };
+const escapeHtml = (unsafe) => {
+  if (!unsafe.replace) return unsafe;
+  return unsafe.replace(/[&<"']/g, (m) => {
+    switch (m) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '"':
+        return '&quot;';
+      default:
+        return '&#039;';
+    }
+  });
+};
   
