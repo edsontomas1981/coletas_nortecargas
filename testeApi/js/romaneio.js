@@ -1,3 +1,102 @@
+const adicionarColeta = (event) => {
+  let markerId = event.target.dataset.marker;
+  let remetente = event.target.dataset.remetente;
+  let cidade = event.target.dataset.cidade;
+  let volume = event.target.dataset.volume;
+  let peso = event.target.dataset.peso;
+  let coletaId = event.target.dataset.coleta;
+
+  let marker = marcadores.find(m => m.id == markerId); // Encontra o marcador pelo ID
+
+  if (marker) {
+    geraLinhaRomaneio(coletaId, remetente, cidade, volume, peso);
+    removerPinDoMapa(marker);
+
+    // Obter o número do romaneio da tabela e passá-lo como parâmetro
+    let numeroRomaneio = document.getElementById('numRomaneio').textContent;
+    let coleta = getColetaInColetas(coletaId);
+    adicionarColetaNoRomaneio(numeroRomaneio, coleta);
+
+  } else {
+    console.log("Marcador não encontrado com o ID especificado:", markerId);
+  }
+};
+
+
+function criarRomaneioNaSessao(motorista, placaVeiculo, tipoVeiculo) {
+  // Obter o objeto de romaneios da sessão ou um objeto vazio, se não houver romaneios ainda
+  const romaneios = JSON.parse(sessionStorage.getItem('romaneios')) || {};
+
+  // Criar o objeto 'romaneio' com as informações iniciais vazias
+  const romaneio = {
+    rom: geraNumeroRomaneio(),
+    motorista: motorista,
+    placaVeiculo: placaVeiculo,
+    tipoVeiculo: tipoVeiculo,
+    coletas: []
+  };
+
+  // Adicionar o objeto 'romaneio' ao objeto de romaneios usando o número do romaneio como chave
+  romaneios[romaneio.rom] = romaneio;
+
+  // Armazenar o objeto de romaneios atualizado na sessão
+  sessionStorage.setItem('romaneios', JSON.stringify(romaneios));
+}
+
+
+// Função para obter o objeto de romaneio pelo número do romaneio na sessão
+function obterRomaneioPeloNumero(numeroRomaneio) {
+  const romaneios = JSON.parse(sessionStorage.getItem('romaneios')) || {};
+  return romaneios[numeroRomaneio];
+}
+
+function adicionarColetaNoRomaneio(numeroRomaneio, coleta) {
+  // Obter o objeto de romaneios da sessão ou um objeto vazio, se não houver romaneios ainda
+  const romaneios = JSON.parse(sessionStorage.getItem('romaneios')) || {};
+
+  // Verificar se o romaneio com o número fornecido existe na sessão
+  if (romaneios[numeroRomaneio]) {
+    // Adicionar a coleta ao array de coletas do romaneio
+    romaneios[numeroRomaneio].coletas.push(coleta);
+
+    // Atualizar o objeto de romaneio na sessão
+    sessionStorage.setItem('romaneios', JSON.stringify(romaneios));
+
+    console.log('Coleta adicionada ao romaneio com sucesso!');
+  } else {
+    console.log('Romaneio não encontrado. Verifique o número do romaneio.');
+  }
+}
+
+
+
+const geraNumeroRomaneio = ()=>{
+  let dataAtual = new Date();
+  // Obtendo os valores individuais da data
+  let dia = String(dataAtual.getDate()).padStart(2, '0'); // Retorna o dia do mês (01-31)
+  let mes = String(dataAtual.getMonth() + 1).padStart(2, '0'); // Retorna o mês (01-12)
+  let horas = String(dataAtual.getHours()).padStart(2, '0'); // Retorna as horas (00-23)
+  let minutos = String(dataAtual.getMinutes()).padStart(2, '0'); // Retorna os minutos (00-59)
+  let segundos = String(dataAtual.getSeconds()).padStart(2, '0'); // Retorna os segundos (00-59)
+  let numero = dia+mes+horas+minutos+segundos
+  console.log(typeof(numero))
+  preencheNumRomaneio(numero);
+  return numero
+}
+
+const preencheNumRomaneio = (numero)=>{
+    let numRomaneio = document.getElementById('numRomaneio')
+    numRomaneio.textContent = numero
+}
+
+document.getElementById('btnCriaRomaneio').addEventListener('click',()=>{
+  let motorista = document.getElementById('motorista')
+  let placa = document.getElementById('placa')
+  let veiculo = document.getElementById('veiculo').selectedOptions[0].textContent
+  criarRomaneioNaSessao(motorista.value,placa.value,veiculo);
+
+});
+
 const geraLinhaRomaneio = (coleta, remetente, cidade, volume, peso) => {
   const linha = document.createElement('tr');
   linha.dataset.coleta = coleta; // Adiciona o atributo data-coleta à linha
@@ -35,43 +134,24 @@ const geraLinhaRomaneio = (coleta, remetente, cidade, volume, peso) => {
   document.getElementById('tabelaRomaneio').appendChild(linha);
 };
 
-  const removeLinhaRomaneio = (coleta) => {
-    let tabela = document.getElementById('tabelaRomaneio');
-    let linha = tabela.querySelector(`tr[data-coleta="${coleta}"]`);
-  
-    if (linha) {
-      tabela.deleteRow(linha.rowIndex);
-    }
-  };
-  
+const removeLinhaRomaneio = (coleta) => {
+  let tabela = document.getElementById('tabelaRomaneio');
+  let linha = tabela.querySelector(`tr[data-coleta="${coleta}"]`);
 
+  if (linha) {
+    tabela.deleteRow(linha.rowIndex);
+  }
+};
 
 const removeRomaneio = (coleta) => {
     removeLinhaRomaneio(coleta);
     recolocarPinNoMapa(coleta);
 };
 
-const recolocarPinNoMapa = (coleta) => {
-  let pinLocal = gerarIconeVermelho();
-  let coletaPin = coletas.find((item) => item.coleta == coleta);
-  if (coletaPin) {
-    // Verifica se já existe um marcador com o mesmo ID e remove antes de criar um novo
-    let existingMarker = marcadores.find((m) => m.id == coleta);
-    if (existingMarker) {
-      removerPinDoMapa(existingMarker);
-    }
-    criarMarcador(parseFloat(coletaPin.lat), parseFloat(coletaPin.lng), map, pinLocal, coletaPin.coleta);
-  } else {
-    console.log("Coleta não encontrada com o número especificado:", coleta);
-  }
-};
-
-
 const limpaRomaneio = () => {
     let tabela = document.getElementById('tabelaRomaneio');
     tabela.innerHTML = ""; // Limpa o conteúdo da tabela
   };
-
 
 const getMotoristaSelecionado = ()=>{
     let selectMotorista = document.getElementById('motorista') 
@@ -85,42 +165,7 @@ const getVeiculoSelecionado = ()=>{
     return veiculo.text
 }
 
-const adicionarColeta = (event) => {
-    let markerId = event.target.dataset.marker;
-    let remetente = event.target.dataset.remetente;
-    let cidade = event.target.dataset.cidade;
-    let volume = event.target.dataset.volume;
-    let peso = event.target.dataset.peso;
-    let coletaId = event.target.dataset.coleta;
-  
-    let marker = marcadores.find(m => m.id == markerId); // Encontra o marcador pelo ID
-  
-    if (marker) {
-      geraLinhaRomaneio(coletaId, remetente, cidade, volume, peso);
-      removerPinDoMapa(marker);
-      let coleta = getColetaInColetas(coletaId)
-    } else {
-      console.log("Marcador não encontrado com o ID especificado:", markerId);
-    }
-  };
 
-
-const criaNumRomaneio = ()=>{
-    let dataAtual = new Date();
-    // Obtendo os valores individuais da data
-    let dia = String(dataAtual.getDate()).padStart(2, '0'); // Retorna o dia do mês (01-31)
-    let mes = String(dataAtual.getMonth() + 1).padStart(2, '0'); // Retorna o mês (01-12)
-    let horas = String(dataAtual.getHours()).padStart(2, '0'); // Retorna as horas (00-23)
-    let minutos = String(dataAtual.getMinutes()).padStart(2, '0'); // Retorna os minutos (00-59)
-    let segundos = String(dataAtual.getSeconds()).padStart(2, '0'); // Retorna os segundos (00-59)
-    let numero = dia+mes+horas+minutos+segundos
-    return numero
-}
-
-const preencheNumRomaneio = (numero)=>{
-    let numRomaneio = document.getElementById('numRomaneio')
-    numRomaneio.textContent = numero
-}
 
 const removerPinDoMapa = (marcador) => {
     if (marcador) {

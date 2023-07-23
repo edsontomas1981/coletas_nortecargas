@@ -17,6 +17,7 @@ const getColetaInColetas=(coletaId)=>{
 
 const criarMapa = async (coletasData) => {
   coletas = coletasData;
+  console.log(coletasData)
   var mapOptions = {
     center: { lat: -23.550164466, lng: -46.633664132 },
     zoom: 10,
@@ -29,7 +30,6 @@ const criarMapa = async (coletasData) => {
   });
   adicionarMarcadorOrigem();
 };
-
 
 const limparMapa = () => {
   let mapa = document.getElementById('map');
@@ -61,8 +61,8 @@ const gerarIconeAzul = () => {
 const gerarIconeVerde = () => {
   let iconCustomizado = {
     labelOrigin: new google.maps.Point(11, 50), // Define a posição do rótulo do ícone
-    url: 'img/pinColeta.png', // https://maps.google.com/mapfiles/ms/icons/red-dot.png URL do ícone do Google Maps com outra cor desejada
-    scaledSize: new google.maps.Size(15, 17)
+    url: 'img/pinColetaVerde.png', // https://maps.google.com/mapfiles/ms/icons/red-dot.png URL do ícone do Google Maps com outra cor desejada
+    scaledSize: new google.maps.Size(25, 25)
   };
   return iconCustomizado;
 };
@@ -83,6 +83,17 @@ const gerarIconeVermelho = () => {
     scaledSize: new google.maps.Size(15, 17)
   };
   return iconCustomizado;
+};
+
+const mudarIconeParaVerde = (coleta) => {
+  console.log(coleta)
+  if (coleta.marcador) {
+    // Obtém o ícone azul gerado pela função gerarIconeAzul
+    const pinVerde = gerarIconeVerde();
+
+    // Atualiza o ícone do marcador para o ícone azul
+    coleta.marcador.setIcon(pinVerde);
+  }
 };
 
 const criarMarcador = (latitude, longitude, map, pinLocal, coleta) => {
@@ -117,6 +128,7 @@ const criarMarcador = (latitude, longitude, map, pinLocal, coleta) => {
   });
 
   marcadores.push(marcador); // Adiciona o marcador ao array marcadores
+  
 
   return marcador;
 };
@@ -169,14 +181,15 @@ const inserirColetaNoMapa = (coleta, map) => {
     // Dentro do loop onde os marcadores são criados
     let marcador = criarMarcador(latitude, longitude, map, pinLocal, coleta.coleta);
 
-    // ...
-
     marcador.addListener('click', exibirInfoWindow);
 
     // Adicionando o evento de clique direito ao marcador
     marcador.addListener('rightclick', function (event) {
       exibirInfoMenuDireito();
     });
+
+  // Salva a referência do marcador no objeto da coleta para uso futuro
+  coleta.marcador = marcador;
   }
 };
 
@@ -271,9 +284,10 @@ const verificarColetasNoPercurso = (routeResult) => {
       const pointLng = point.lng();
 
       const distancia = calcularDistancia(coletaLat, coletaLng, pointLat, pointLng);
+
       if (distancia <= raio) {
-        // Coleta está dentro do raio do percurso, adicionar marcador personalizado
-        criarMarcador(coletaLat, coletaLng, map, gerarIconeVerde(), coleta.coleta);
+        console.log("mudePraVerde")
+        mudarIconeParaVerde(coleta);
         break; // Parar o loop se a coleta já estiver sido marcada
       }
     }
@@ -296,7 +310,7 @@ const removerPerimetro = (map) => {
 };
 
 const ajustarCoordenadas = (latitude, longitude) => {
-  const ajuste =  0.0001;
+  const ajuste =  0.00001;
   return [latitude + ajuste, longitude + ajuste];
 };
 
@@ -344,8 +358,6 @@ const gerarItinerarioAPartirDoPerimetro = (lat, lng) => {
   });
 };
 
-
-// Movendo a chamada da função adicionarMarcadorOrigem para depois da declaração dela
 const adicionarMarcadorOrigem = () => {
   // , 
   let latitudeOrigem = -23.473683815599315;
@@ -355,8 +367,21 @@ const adicionarMarcadorOrigem = () => {
   // map.panTo(new google.maps.LatLng(latitudeOrigem, longitudeOrigem)); // Centraliza o mapa na localidade desejada
 };
 
-
 document.addEventListener('DOMContentLoaded', ()=>{
   adicionarMarcadorOrigem();
 });
 
+const recolocarPinNoMapa = (coleta) => {
+  let pinLocal = gerarIconeVermelho();
+  let coletaPin = coletas.find((item) => item.coleta == coleta);
+  if (coletaPin) {
+    // Verifica se já existe um marcador com o mesmo ID e remove antes de criar um novo
+    let existingMarker = marcadores.find((m) => m.id == coleta);
+    if (existingMarker) {
+      removerPinDoMapa(existingMarker);
+    }
+    criarMarcador(parseFloat(coletaPin.lat), parseFloat(coletaPin.lng), map, pinLocal, coletaPin.coleta);
+  } else {
+    console.log("Coleta não encontrada com o número especificado:", coleta);
+  }
+};
