@@ -1,74 +1,31 @@
-const adicionarColeta = (event) => {
-  let markerId = event.target.dataset.marker;
-  let remetente = event.target.dataset.remetente;
-  let cidade = event.target.dataset.cidade;
-  let volume = event.target.dataset.volume;
-  let peso = event.target.dataset.peso;
-  let coletaId = event.target.dataset.coleta;
-
-  let marker = marcadores.find(m => m.id == markerId); // Encontra o marcador pelo ID
-
-  if (marker) {
-    geraLinhaRomaneio(coletaId, remetente, cidade, volume, peso);
-    removerPinDoMapa(marker);
-
-    // Obter o número do romaneio da tabela e passá-lo como parâmetro
-    let numeroRomaneio = document.getElementById('numRomaneio').textContent;
-    let coleta = getColetaInColetas(coletaId);
-    adicionarColetaNoRomaneio(numeroRomaneio, coleta);
-
-  } else {
-    console.log("Marcador não encontrado com o ID especificado:", markerId);
-  }
-};
-
-
 function criarRomaneioNaSessao(motorista, placaVeiculo, tipoVeiculo) {
+  let numRomaneio = geraNumeroRomaneio()
   // Obter o objeto de romaneios da sessão ou um objeto vazio, se não houver romaneios ainda
-  const romaneios = JSON.parse(sessionStorage.getItem('romaneios')) || {};
+  JSON.parse(sessionStorage.getItem(numRomaneio)) || {};
 
   // Criar o objeto 'romaneio' com as informações iniciais vazias
   const romaneio = {
-    rom: geraNumeroRomaneio(),
     motorista: motorista,
     placaVeiculo: placaVeiculo,
     tipoVeiculo: tipoVeiculo,
     coletas: []
   };
 
-  // Adicionar o objeto 'romaneio' ao objeto de romaneios usando o número do romaneio como chave
-  romaneios[romaneio.rom] = romaneio;
-
   // Armazenar o objeto de romaneios atualizado na sessão
-  sessionStorage.setItem('romaneios', JSON.stringify(romaneios));
+  sessionStorage.setItem(numRomaneio, JSON.stringify(romaneio));
 }
-
 
 // Função para obter o objeto de romaneio pelo número do romaneio na sessão
 function obterRomaneioPeloNumero(numeroRomaneio) {
-  const romaneios = JSON.parse(sessionStorage.getItem('romaneios')) || {};
-  return romaneios[numeroRomaneio];
+  const romaneios = JSON.parse(sessionStorage.getItem(numeroRomaneio));
+  console.log(romaneios)
+  return romaneios;
 }
 
-function adicionarColetaNoRomaneio(numeroRomaneio, coleta) {
-  // Obter o objeto de romaneios da sessão ou um objeto vazio, se não houver romaneios ainda
-  const romaneios = JSON.parse(sessionStorage.getItem('romaneios')) || {};
-
-  // Verificar se o romaneio com o número fornecido existe na sessão
-  if (romaneios[numeroRomaneio]) {
-    // Adicionar a coleta ao array de coletas do romaneio
-    romaneios[numeroRomaneio].coletas.push(coleta);
-
-    // Atualizar o objeto de romaneio na sessão
-    sessionStorage.setItem('romaneios', JSON.stringify(romaneios));
-
-    console.log('Coleta adicionada ao romaneio com sucesso!');
-  } else {
-    console.log('Romaneio não encontrado. Verifique o número do romaneio.');
-  }
+const getNumRomaneio=()=>{
+  let numRomaneio = document.getElementById('numRomaneio')
+  return numRomaneio.textContent
 }
-
-
 
 const geraNumeroRomaneio = ()=>{
   let dataAtual = new Date();
