@@ -1,5 +1,4 @@
 var mapa
-
 // Declara a variável mapa no escopo global para torná-la acessível em toda a aplicação
 class Mapa {
   constructor() {
@@ -106,11 +105,11 @@ class Mapa {
 
   criarMarcador = (latitude, longitude, map, pinLocal, coleta) => {
     let coordenada = `${latitude},${longitude}`;
-
+  
     if (coordenada in this.coordenadas) {
       // Se a coordenada já existe, incrementa o contador e desloca o marcador
       this.coordenadas[coordenada]++;
-
+  
       [latitude, longitude] = this.ajustarCoordenadas(latitude, longitude);
     } else {
       // Se a coordenada ainda não existe, define o contador como 1 e cria um ícone personalizado para a localidade
@@ -118,26 +117,29 @@ class Mapa {
       pinLocal = this.gerarIconeVermelho();
     }
 
+    console.log(coleta)
+  
     let marcador = new google.maps.Marker({
       position: { lat: latitude, lng: longitude },
       map: map,
       icon: pinLocal,
-      id: coleta,
+      id: coleta.coleta
     });
-
+  
     marcador.addListener('click', () => {
       this.exibirInfoWindow(marcador);
     });
-
+  
     // Adicionando o evento de clique direito ao marcador
     marcador.addListener('rightclick', () => {
       this.exibirInfoMenuDireito(marcador);
     });
-
+  
     this.marcadores.push(marcador); // Adiciona o marcador ao array marcadores
-
+  
     return marcador;
   };
+  
 
   criarMarcadorOrigem = (latitude, longitude, map, pinLocal) => {
     let marcador = new google.maps.Marker({
@@ -176,7 +178,7 @@ class Mapa {
     }
   };
 
-  inserirColetaNoMapa = (coleta,map) => {
+  inserirColetaNoMapa = (coleta) => {
     if (coleta.lat && coleta.lng) {
       let latitude = parseFloat(coleta.lat);
       let longitude = parseFloat(coleta.lng);
@@ -187,17 +189,10 @@ class Mapa {
       let marcador = this.criarMarcador(
         latitude,
         longitude,
-        map,
+        this.map,
         pinLocal,
         coleta.coleta
       );
-
-      marcador.addListener('click', this.exibirInfoWindow);
-
-      // Adicionando o evento de clique direito ao marcador
-      marcador.addListener('rightclick', () => {
-        this.exibirInfoMenuDireito(marcador);
-      });
 
       // Salva a referência do marcador no objeto da coleta para uso futuro
       coleta.marcador = marcador;
@@ -400,7 +395,7 @@ class Mapa {
     });
   };
 
-  adicionarMarcadorOrigem = () => {
+  adicionarMarcadorOrigem = ()=> {
     // ,
     let latitudeOrigem = -23.473683815599315;
     let longitudeOrigem = -46.47333115093511;
@@ -409,9 +404,7 @@ class Mapa {
       latitudeOrigem,
       longitudeOrigem,
       this.map,
-      this.gerarIconeOrigem()
-    );
-    // map.panTo(new google.maps.LatLng(latitudeOrigem, longitudeOrigem)); // Centraliza o mapa na localidade desejada
+      this.gerarIconeOrigem(),'Origem'  );
   };
 
   recolocarPinNoMapa = (coleta) => {

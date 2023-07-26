@@ -21,7 +21,8 @@ function adicionarColeta() {
   console.log(mapa)
 
   if (mapa) {
-    mapa.inserirColetaNoMapa(novaColeta, mapa.map);
+    mapa.criarMarcador(novaColeta.lat, novaColeta.lng, 
+      mapa.map, mapa.gerarIconeVermelho(), novaColeta);
   } else {
     console.log("Instância do mapa não encontrada.");
   }
